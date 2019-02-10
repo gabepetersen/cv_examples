@@ -1,0 +1,6 @@
+<launch>
+
+	<include file="$(find video_stream_opencv)/launch/camera.launch" />
+	
+	<node pkg="cv_examples" name="converter" type="sobel_converter"/>
+</launch>
