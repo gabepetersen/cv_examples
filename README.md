@@ -1,2 +1,4 @@
 # cv_examples
-OpenCV examples
+Node demonstrating Sobel filtering
+
+Launch file: sobel_convert.launch included
