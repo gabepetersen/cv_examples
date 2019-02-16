@@ -1,59 +1,50 @@
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Float32.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-class SobelGet
-{
-	ros::NodeHandle nh_;
-	ros::Subscriber mi_;
- 	image_transport::ImageTransport it_;
-  	image_transport::Subscriber sobel_sub_;
+void mi_cb(const std_msgs::Float32::ConstPtr& msg);
+void img_cb(const sensor_msgs::ImageConstPtr& msg);
+
+int main(int argc, char** argv) {
+
+  	// initialize the node
+	ros::init(argc, argv, "sobel_get");
+  	ros::NodeHandle n;
   
+  	// Create the CV Windows
+  	cv::namedWindow("Sobel Image");
+  	cv::startWindowThread();
 
-	public:
-		void img_cb(const sensor_msgs::ImageConstPtr& msg);
-
-  		SobelGet() : it_(nh_) {
-
-			// declare a subscription to topic: camera/image_raw
-    		sobel_sub_ = it_.subscribe("/sobel_converter/output_video", 1, &SobelGet::img_cb, this);
-
-			// create a new cv window
-			cv::namedWindow("Sobel Image");
-  		}
+	// initilize the subscribers for mean_intensity and Sobel Image
+  	image_transport::ImageTransport it(n);
+  	image_transport::Subscriber sobel_sub = it.subscribe("/sobel_converter/output_video", 1, img_cb);
+  	ros::Subscriber mi = n.subscribe("/sobel_converter/mean_intensity", 100, mi_cb);
   
-  		// destructor of window
-  		~SobelGet() {
-			cv::destroyWindow("Sobel Image");
-  		}
-};
-
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "sobel_get");
-  SobelGet ic;
-  ros::spin();
-  return 0;
+  	ros::spin();
+  	cv::destroyWindow("Sobel Image");
+  	return 0;
 }
 
+// Callback function for displaying the mean intensity of the Image
+void mi_cb(const std_msgs::Float32::ConstPtr& msg) {
+	ROS_INFO("Mean Intensity = %f", msg->data);
+}
 
-void SobelGet::img_cb(const sensor_msgs::ImageConstPtr& msg) {
-	// create a CVImagePtr so data can get copied in
-    cv_bridge::CvImagePtr cv_ptr;
+// Callback function for displaying Sobel image
+void img_cb(const sensor_msgs::ImageConstPtr& msg) {
     try
     {
-		// convert sensor_msgs/Image to a MONO8 greyscale CV img encoding
-    	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO8);
+		// toCvShare is used since data doesn't need to be copied
+		cv::imshow("Sobel Image", cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8)->image);
+		cv::waitKey(30);
     }
     catch (cv_bridge::Exception& e)
     {
     	ROS_ERROR("cv_bridge exception: %s", e.what());
     	return;
     }
-	cv::imshow("Sobel Image", cv_ptr->image);
 }

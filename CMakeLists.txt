@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   video_stream_opencv
+  message_generation
 )
 find_package(OpenCV REQUIRED)
 
@@ -73,9 +74,10 @@ find_package(OpenCV REQUIRED)
 
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs
-# )
+#	DEPENDENCIES
+#    sensor_msgs  
+#    std_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -109,7 +111,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES cv_examples
-#  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+   CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -141,7 +143,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/cv_examples_node.cpp)
 
 add_executable(sobel_converter src/sobel_converter.cpp)
-# add_executable(sobel_get src/sobel_get.cpp)
+add_executable(sobel_get src/sobel_get.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,8 +155,8 @@ add_executable(sobel_converter src/sobel_converter.cpp)
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_dependencies(sobel_converter cv_examples_sobel_converter_cpp)
-# add_dependencies(sobel_get cv_examples_sobel_get_cpp)
+add_dependencies(sobel_converter ${catkin_EXPORTED_TARGETS})
+add_dependencies(sobel_get ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -162,9 +164,9 @@ add_dependencies(sobel_converter cv_examples_sobel_converter_cpp)
 # )
 
 target_link_libraries(sobel_converter ${catkin_LIBRARIES})
-# target_link_libraries(sobel_get ${catkin_LIBRARIES})
+target_link_libraries(sobel_get ${catkin_LIBRARIES})
 target_link_libraries(sobel_converter ${OpenCV_LIBRARIES})
-# target_link_libraries(sobel_get ${OpenCV_LIBRARIES})
+target_link_libraries(sobel_get ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##

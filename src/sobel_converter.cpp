@@ -30,13 +30,11 @@ class SobelConverter
 
 			// create 2 new cv windows
 			cv::namedWindow("Original Image");
-			cv::namedWindow("Sobel Image");
   		}
   
   		// destructor of window
   		~SobelConverter() {
     		cv::destroyWindow("Original Image");
-			cv::destroyWindow("Sobel Image");
   		}
 };
 
@@ -107,10 +105,12 @@ void SobelConverter::imageCb(const sensor_msgs::ImageConstPtr& msg) {
 
     // Update GUI Windows
     cv::imshow("Original Image", srcImg);
-	cv::imshow("Sobel Image", cv_ptr->image);
     cv::waitKey(3);
 
+	// Convert the Sobel Mat to a sensor_msgs/ImagePtr for transport
+	sensor_msgs::ImagePtr msgp = cv_bridge::CvImage(std_msgs::Header(),sensor_msgs::image_encodings::MONO8, cv_ptr->image).toImageMsg();
+
     // Output modified video stream as a ROS sensor_msg/Image
-    image_pub_.publish(cv_ptr->toImageMsg());
+    image_pub_.publish(msgp);
 	mi_.publish(meanIntensity);
 }
